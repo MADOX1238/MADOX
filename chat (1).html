@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع دردشة عامة</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
+        #chat-box { width: 80%; margin: 20px auto; padding: 10px; background-color: #fff; border: 1px solid #ddd; }
+        #messages { height: 300px; overflow-y: scroll; border-bottom: 1px solid #ddd; padding: 10px; }
+        #message-input { width: calc(100% - 22px); padding: 10px; margin-top: 10px; border: 1px solid #ddd; }
+        #send-btn { padding: 10px 20px; margin-top: 10px; background-color: #007bff; color: #fff; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="chat-box">
+    <div id="messages"></div>
+    <input type="text" id="message-input" placeholder="اكتب رسالتك هنا">
+    <button id="send-btn">إرسال</button>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, set, onChildAdded } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCiszDPSPBLvghmXoYoA3mtt88k2raYBcI",
+        authDomain: "chat-mad-303.firebaseapp.com",
+        databaseURL: "https://chat-mad-303-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "chat-mad-303",
+        storageBucket: "chat-mad-303.appspot.com",
+        messagingSenderId: "128118711022",
+        appId: "1:128118711022:web:7b7fac17af0f3fd36709ff",
+        measurementId: "G-QZJSL257LH"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const messagesRef = ref(database, 'messages');
+
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    sendBtn.addEventListener('click', () => {
+        const message = messageInput.value;
+        if (message.trim() !== '') {
+            const newMessageRef = ref(database, 'messages/' + Date.now());
+            set(newMessageRef, {
+                text: message,
+                timestamp: Date.now()
+            });
+            messageInput.value = '';
+        }
+    });
+
+    onChildAdded(messagesRef, (snapshot) => {
+        const messageData = snapshot.val();
+        const newMessage = document.createElement('div');
+        newMessage.textContent = messageData.text;
+        messagesDiv.appendChild(newMessage);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+    });
+</script>
+
+
+</body></html>
